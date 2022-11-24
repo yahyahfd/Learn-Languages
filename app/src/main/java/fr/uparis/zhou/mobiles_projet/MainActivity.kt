@@ -1,11 +1,27 @@
 package fr.uparis.zhou.mobiles_projet
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import fr.uparis.zhou.mobiles_projet.databinding.ActivityMainBinding
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val binding: ActivityMainBinding = ActivityMainBinding.inflate( layoutInflater )
+        setContentView(binding.root)
+
+        binding.ajoutMot.setOnClickListener{
+            val myIntent = Intent(this@MainActivity, AjoutMotActivity::class.java)
+            //myIntent.putExtra("key", value) //Optional parameters
+            this@MainActivity.startActivity(myIntent)
+        }
+
+        binding.afficherBdd.setOnClickListener{
+            val myIntent = Intent(this@MainActivity, AfficherBddActivity::class.java)
+            //myIntent.putExtra("key", value) //Optional parameters
+            this@MainActivity.startActivity(myIntent)
+        }
     }
 }
