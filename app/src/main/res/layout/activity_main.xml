@@ -34,6 +34,14 @@
             android:padding="10dp"
             android:text="Afficher la base de données"
             android:textSize="20dp" />
+        <Button
+            android:id="@+id/chercher"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+            android:text="Chercher un mot ou une phrase"
+            android:textSize="20dp" />
     </LinearLayout>
 
 </LinearLayout>

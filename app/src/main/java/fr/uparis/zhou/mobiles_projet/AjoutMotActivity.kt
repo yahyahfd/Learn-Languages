@@ -22,6 +22,45 @@ class AjoutMotActivity : AppCompatActivity() {
         val binding: ActivityAjoutMotBinding = ActivityAjoutMotBinding.inflate( layoutInflater )
         setContentView(binding.root)
 
+        if( intent.action.equals( "android.intent.action.SEND" ) ) {
+            val url = intent.extras?.getString("android.intent.extra.TEXT")
+            val parts = url!!.split("/")
+            if(parts[2].contains("larousse") && parts[3] == "dictionnaires"){
+                val langues = parts[4].split("-")
+                if(langues.size == 2){
+                    binding.edSrc.setText(langues[0])
+                    binding.edDst.setText(langues[1])
+                }else{
+                    binding.edSrc.setText(langues[0])
+                    binding.edDst.setText(langues[0])
+                }
+                binding.edMot.setText(parts[5])
+            }
+            else if(parts[2].contains("reverso") && parts[2].contains("dictionnaire")){
+                val langues = parts[3].split("-")
+                if(langues.size == 2){
+                    binding.edSrc.setText(langues[0])
+                    binding.edDst.setText(langues[1])
+                }else{
+                    binding.edSrc.setText(langues[0])
+                    binding.edDst.setText(langues[0])
+                }
+                binding.edMot.setText(parts[4])
+            }
+            else if(parts[2].contains("cambridge") && parts[2].contains("dictionary")){
+                val langues = parts[5].split("-")
+                if(langues.size == 2){
+                    binding.edSrc.setText(langues[0])
+                    binding.edDst.setText(langues[1])
+                }else{
+                    binding.edSrc.setText(langues[0])
+                    binding.edDst.setText(langues[0])
+                }
+                binding.edMot.setText(parts[6])
+            }
+            binding.edUrl.setText(url)
+        }
+
         binding.bAjouter.setOnClickListener{
             var motEmpty = false
             var srcEmpty = false
