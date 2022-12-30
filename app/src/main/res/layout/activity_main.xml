@@ -42,6 +42,16 @@
             android:padding="10dp"
             android:text="Chercher un mot ou une phrase"
             android:textSize="20dp" />
+
+        <Button
+            android:id="@+id/param"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/params"
+            android:textSize="20dp"
+            android:padding="10dp"
+            android:layout_margin="10dp"
+            android:onClick="params"/>
     </LinearLayout>
 
 </LinearLayout>

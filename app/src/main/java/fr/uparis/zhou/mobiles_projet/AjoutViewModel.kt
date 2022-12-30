@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import java.util.concurrent.TimeUnit
 
 class AjoutViewModel(application: Application) : AndroidViewModel(application)  {
     private val dao = (application as DicoApplication).database.myDao()

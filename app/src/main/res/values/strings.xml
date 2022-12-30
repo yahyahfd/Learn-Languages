@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">mobiles_projet</string>
+    <string name="nb_mots">Nombre de mots</string>
+    <string name="freq">Fréquence (nombre de fois par jour)</string>
+    <string name="save">Sauvegarder</string>
+    <string name="params">Paramètres</string>
 </resources>

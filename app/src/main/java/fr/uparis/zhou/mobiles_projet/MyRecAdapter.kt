@@ -11,11 +11,7 @@ import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
 import fr.uparis.zhou.mobiles_projet.databinding.ItemLayoutBinding
 
-class VH(val binding: ItemLayoutBinding) : RecyclerView.ViewHolder( binding.root ){
-    var mots: Mot? = null
-}
-
-class MyRecAdapter(private var listMots: MutableList<Mot>) : RecyclerView.Adapter<VH>() {
+class MyRecAdapter(private var listMots: MutableList<Mot>) : RecyclerView.Adapter<MyRecAdapter.VH>() {
     private var selectedMot = -1
     private var size = 0
 
@@ -89,5 +85,9 @@ class MyRecAdapter(private var listMots: MutableList<Mot>) : RecyclerView.Adapte
     fun update(p: Mot){
         listMots[selectedMot] = p
         notifyDataSetChanged()
+    }
+
+    class VH(val binding: ItemLayoutBinding) : RecyclerView.ViewHolder( binding.root ){
+        var mots: Mot? = null
     }
 }
