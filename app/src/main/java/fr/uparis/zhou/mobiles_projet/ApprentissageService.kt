@@ -1,5 +1,6 @@
 package fr.uparis.zhou.mobiles_projet
 
+import android.annotation.SuppressLint
 import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -19,6 +20,7 @@ import java.util.*
 import kotlin.concurrent.thread
 import kotlin.math.min
 
+@Suppress("SpellCheckingInspection")
 class ApprentissageService : Service() {
 
     private lateinit var sharedPreferences: SharedPreferences
@@ -26,16 +28,18 @@ class ApprentissageService : Service() {
     private lateinit var alarmManager: AlarmManager
     private lateinit var myDao: MyDao
     private lateinit var listmots: List<Mot>
-    private var notificationID = 0
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        //On rajoute une variable dans les sharedPreferences qui nous dit de tout remettre à false
+        sharedPreferences.edit().putInt("unseeAll",1).apply()
         stopSelf()
     }
 
+    @SuppressLint("UnspecifiedImmutableFlag")
     override fun onCreate() {
         super.onCreate()
 
@@ -60,80 +64,198 @@ class ApprentissageService : Service() {
 
         //myDao
         myDao = (application as DicoApplication).database.myDao()
+
+        val stopIntent = Intent(
+            this,
+            ApprentissageService::class.java
+        ).apply {
+            action = "STOP"
+        }
+
+        val pendingStopIntent =
+            PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_CANCEL_CURRENT)
         val foreNotif = NotificationCompat.Builder(this, "channel_id")
             .setContentTitle("Notifications")
             .setContentText("On en apprend des choses tous les jours !")
             .setSmallIcon(R.drawable.idea)
+            .addAction(R.drawable.idea,"STOP SERVICE",pendingStopIntent)
             .setAutoCancel(true)
             .build()
         startForeground(
-            11,
+            1,
             foreNotif
         )
     }
 
+    @SuppressLint("UnspecifiedImmutableFlag")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-
-        var motID :String? = ""
+        //var notificationID = intent?.getIntExtra("notifID", -1) ?: -1
+        var notificationID = sharedPreferences.getInt("notifID", 1)
+        var motID: String?
         if (intent != null) {
+            if(intent.action == "STOP"){
+                val alarmIntent = Intent(this, ApprentissageService::class.java)
+                alarmManager.cancel(PendingIntent.getBroadcast(this, 0, alarmIntent, 0))
+                notificationManager.cancelAll()
+                //On rajoute une variable dans les sharedPreferences qui nous dit de tout remettre à false
+                sharedPreferences.edit().putInt("unseeAll",1).apply()
+                Log.d("Service", "Terminé")
+                stopSelf()
+                return START_NOT_STICKY
+            }
             if (intent.action == "SEARCH") {
                 val url = intent.getStringExtra("url")
-                val id = intent.getIntExtra("id", -1)
+                Log.d("reçue", "$url")
+                val id = intent.getIntExtra("notifIDelete", -1)
+                Log.d("id reçu", "$id")
                 val browserIntent = Intent(Intent.ACTION_VIEW)
                 browserIntent.data = Uri.parse(url)
                 browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(browserIntent)
                 notificationManager.cancel(id)
+                thread {
+                    motID = intent.getStringExtra("motID")
+                    if (motID != null) {
+                        val mot = myDao.getMotbyID(motID!!)
+                        mot.used = false
+                        myDao.updateMots(mot)
+                        Log.d("mot ${mot.mot}", " devient FALSE")
+                    }
+                }
                 return START_NOT_STICKY
-            }
-            //SI c'est juste l'intent après avoir fermé une notification (swipe ou autre), on ne met pas d'alarme
-            if (intent.action != "REPEAT" && intent.action != "SEARCH") {
-                //Interval de relance du service:
-                // pour les tests chaque 10 secondes, pour la version finale, on récupère dans les paramètres
-                // la fréquence choisie et on l'étale sur 1 jour
-                val frequence = sharedPreferences.getInt("freqMots", 1500)// Chaque 57 secondes
-                var interval = (24 * 60 * 60 * 1000L / frequence)
-                // frequence determine le nombre de fois que l'alarme sera déclenchée par jour
-                val pendingIntent = intent?.let { PendingIntent.getService(this, 12, it, 0) }
-                alarmManager.setExact(
-                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + interval,
-                    pendingIntent
-                )
-                Log.d("PROCHAINE ALARME DANS", (interval / 1000).toString() + " secondes")
-            }else{
-                motID = intent.getStringExtra("motID")
             }
         }
         // Tout le bloc en haut sert à relancer le service chaque interval millisecondes
         val mois: Long = 30L * 24L * 60L * 60L * 1000L
-        val tmpTemps = 300000L //300s
+        //val tmpTemps = 60000L //60s
         val datecurr: Long = System.currentTimeMillis()
+        val difftemps: Long = datecurr - mois
         var nb: Int
-        var id: Int
+
         //On fait les modifications sur la bd dans un thread
         thread {
-            nb = intent?.getIntExtra("nb", sharedPreferences.getInt("nbMots", 10)) ?: 10
-
+            motID = intent?.getStringExtra("motID")
+            if (motID != null) {
+                val mot = myDao.getMotbyID(motID!!)
+                mot.used = false
+                myDao.updateMots(mot)
+                Log.d("mot ${mot.mot}", " devient FALSE")
+            }
+            nb = intent?.getIntExtra(
+                "nb", sharedPreferences.getInt(
+                    "nbMots", 10
+                )
+            ) ?: 10
+            Log.d("nb", "$nb")
             //Dans paramètre, quand on choisit 0 mots, tout s'arrete
             // On reçoit toute de même la notification journalière qui demande de relancer
             if (sharedPreferences.getInt("nbMots", -1) == 0) {
                 nb = 0
             }
             Log.d("BD -> listmots", "Chargement")
-            if (motID != null) {
-                val mot = myDao.getMotbyID(motID)
-                if(mot != null){
-                    mot.used = false
-                    myDao.updateMots(mot)
+
+
+            //On vérifie quel jour de la semaine on est et on charge en
+            // fonction du jour et des paramètres
+            val calendar = Calendar.getInstance()
+            when (calendar.get(Calendar.DAY_OF_WEEK)) {
+                Calendar.MONDAY -> {
+                    val dimPref = sharedPreferences.getString("lundi", "") ?: ""
+                    listmots = if (dimPref != "") {
+                        val separe = dimPref.split("-")
+                        val src = separe[0]
+                        val dst = separe[1]
+                        myDao.loadTenWordsBis(nb, difftemps, src, dst)
+                    } else {
+                        myDao.loadTenWords(nb, difftemps)
+                    }
+                }
+                Calendar.TUESDAY -> {
+                    val dimPref = sharedPreferences.getString("mardi", "") ?: ""
+                    listmots = if (dimPref != "") {
+                        val separe = dimPref.split("-")
+                        val src = separe[0]
+                        val dst = separe[1]
+                        myDao.loadTenWordsBis(nb, difftemps, src, dst)
+                    } else {
+                        myDao.loadTenWords(nb, difftemps)
+                    }
+                }
+                Calendar.WEDNESDAY -> {
+                    val dimPref = sharedPreferences.getString("mercredi", "") ?: ""
+                    listmots = if (dimPref != "") {
+                        val separe = dimPref.split("-")
+                        val src = separe[0]
+                        val dst = separe[1]
+                        myDao.loadTenWordsBis(nb, difftemps, src, dst)
+                    } else {
+                        myDao.loadTenWords(nb, difftemps)
+                    }
+                }
+                Calendar.THURSDAY -> {
+                    val dimPref = sharedPreferences.getString("jeudi", "") ?: ""
+                    listmots = if (dimPref != "") {
+                        val separe = dimPref.split("-")
+                        val src = separe[0]
+                        val dst = separe[1]
+                        myDao.loadTenWordsBis(nb, difftemps, src, dst)
+                    } else {
+                        myDao.loadTenWords(nb, difftemps)
+                    }
+                }
+                Calendar.FRIDAY -> {
+                    val dimPref = sharedPreferences.getString("vendredi", "") ?: ""
+                    listmots = if (dimPref != "") {
+                        val separe = dimPref.split("-")
+                        val src = separe[0]
+                        val dst = separe[1]
+                        myDao.loadTenWordsBis(nb, difftemps, src, dst)
+                    } else {
+                        myDao.loadTenWords(nb, difftemps)
+                    }
+                }
+                Calendar.SATURDAY -> {
+                    val dimPref = sharedPreferences.getString("samedi", "") ?: ""
+                    listmots = if (dimPref != "") {
+                        val separe = dimPref.split("-")
+                        val src = separe[0]
+                        val dst = separe[1]
+                        myDao.loadTenWordsBis(nb, difftemps, src, dst)
+                    } else {
+                        myDao.loadTenWords(nb, difftemps)
+                    }
+                }
+                Calendar.SUNDAY -> {
+                    val dimPref = sharedPreferences.getString("dimanche", "") ?: ""
+                    listmots = if (dimPref != "") {
+                        val separe = dimPref.split("-")
+                        val src = separe[0]
+                        val dst = separe[1]
+                        myDao.loadTenWordsBis(nb,difftemps, src, dst)
+                    } else {
+                        myDao.loadTenWords(nb, difftemps)
+                    }
                 }
             }
-            listmots = myDao.loadTenWords(nb, datecurr - tmpTemps)
+
+            val tmpAllMots = myDao.loadEverything()
+            if(sharedPreferences.getInt("unseeAll",0) == 1){
+                for(i in tmpAllMots){
+                    i.used = false
+                    myDao.updateMots(i)
+                }
+                sharedPreferences.edit().putInt("unseeAll",0).apply()
+                Log.d("Unsee ALL", "SUCCESS")
+            }else{
+                Log.d("Unsee ALL", "FAILURE")
+            }
+
             val unseenMots: MutableList<Mot> = mutableListOf()
             var count = 0
             Log.d("sizelistmo", listmots.size.toString())
             for (i in listmots.indices) {
+
                 if (listmots[i].used == true) {
                     count++
                 } else {
@@ -144,74 +266,118 @@ class ApprentissageService : Service() {
                         Log.d("adding", "adding")
                     }
                 }
-                //val mot = listmots[i]
-                //mot.used = false
-                //myDao.updateMots(mot)
+/*
+                val mot = listmots[i]
+                mot.used = false
+                Log.d("mot ${mot.mot}", "devient false encore ")
+                myDao.updateMots(mot)
+*/
             }
+
             Log.d("sizeUNSEEN", unseenMots.size.toString())
             // Envoi des Notifications
-            //val size = listmots.size
             val size = min(nb - count, unseenMots.size) // meme si negatif pas grave
             Log.d("size", "$nb $size")
-
             for (i in 0 until size) {
-                id = intent?.getIntExtra("id", i) ?: i
-                //val m = listmots[i]
+                notificationID++
+                sharedPreferences.edit().putInt("notifID", notificationID).apply()
                 val m = unseenMots[i]
-                val cancelIntent = Intent(this, ApprentissageService::class.java).apply {
+                val cancelIntent = Intent(
+                    this,
+                    ApprentissageService::class.java
+                ).apply {
                     action = "SEARCH"
                     putExtra("url", m.url)
-                    putExtra("motID",m.mot)
-
-                    /*if (intent?.action == "REPEAT") {
-                        putExtra("id", id)
-                    } else {
-                        putExtra("id", i)
-                    }*/
-                    putExtra("id", notificationID)
+                    Log.d("url envoyée", m.url)
+                    putExtra("motID", m.mot)
+                    putExtra("notifIDelete", notificationID)
+                    Log.d("id envoyé", "$notificationID")
                 }
 
-                val repeatIntent = Intent(this, ApprentissageService::class.java).apply {
+
+                val repeatIntent = Intent(
+                    this,
+                    ApprentissageService::class.java
+                ).apply {
                     action = "REPEAT"
                     putExtra("nb", 1)
-                    putExtra("motID",m.mot)
-
-                    /*if (intent?.action == "REPEAT") {//c'est la deuxième répétition
-                        putExtra("id", id)
-                    } else {
-                        putExtra("id", i)
-                    }*/
-                    putExtra("id", notificationID)
+                    putExtra("motID", m.mot)
+                    Log.d("motID envoyé", m.mot)
                 }
 
-                val pendingRepeatIntent = PendingIntent.getService(this, id, repeatIntent, 0)
+                val pendingRepeatIntent =
+                    PendingIntent.getService(this, notificationID, repeatIntent, 0)
                 val pendingBrowserIntent = PendingIntent.getService(
-                    this, id, cancelIntent, 0
+                    this, notificationID, cancelIntent, 0
                 )
                 val notification = NotificationCompat.Builder(this, "channel_id")
-                    .setContentTitle("Notification $id")
+                    .setContentTitle("${m.src} -> ${m.dst}")
                     .setContentText(m.mot)
                     .setSmallIcon(R.drawable.idea)
                     .setAutoCancel(true)
                     .setDeleteIntent(pendingRepeatIntent)
                     .addAction(R.drawable.idea, "Rechercher", pendingBrowserIntent)
                     .build()
-                notificationManager.notify(id, notification)
+                notificationManager.notify(notificationID, notification)
                 thread {
                     if (intent != null) {
-                        if(intent.action == "REPEAT"){
+                        if (intent.action == "REPEAT") {
                             m.maitrise = m.maitrise?.plus(1)
                         }
                     }
-                    //m.used = true
+                    m.used = true
                     m.lastVu = System.currentTimeMillis()
                     myDao.updateMots(m)
                 }
-                Log.d("mot, vu, dernier vu", "${m.mot} ${m.maitrise} ${Date((m.lastVu!!))}")
-                notificationID++
+                Log.d(
+                    "mot, vu, dernier vu",
+                    "${m.mot} ${m.maitrise} ${Date((m.lastVu!!))}"
+                )
+            }
+            Log.d(
+                "size des notifs actives",
+                "${notificationManager.activeNotifications.size}"
+            )
+            Log.d("size du unseen", "${unseenMots.size}")
+            //s'il y a un probleme, on revert
+            if (notificationManager.activeNotifications.size < unseenMots.size) {
+                for (i in unseenMots.indices) {
+                    val change = unseenMots[i]
+                    change.used = false
+                    myDao.updateMots(change)
+                    Log.d("end_for", "mot reverted used value because of error")
+                }
             }
 
+            //SI c'est juste l'intent après avoir fermé une notification (swipe ou autre),
+            // on ne met pas d'alarme
+            if (intent != null) {
+                if (intent.action != "REPEAT" && intent.action != "SEARCH") {
+                    //Interval de relance du service:
+                    // pour les tests chaque 10 secondes, pour la version finale, on
+                    // récupère dans les paramètres la fréquence choisie et on l'étale sur 1 jour
+                    val frequence = sharedPreferences.getInt("freqMots", 3000)
+                    val interval = (24 * 60 * 60 * 1000L / frequence)
+                    // frequence determine le nombre de fois que l'alarme sera déclenchée par jour
+                    //intent.putExtra("notifID", tmpNotif)
+                    val pendingIntent = intent.let {
+                        PendingIntent.getService(
+                            this,
+                            0, it, 0
+                        )
+                    }
+                    alarmManager.setExact(
+                        AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                        SystemClock.elapsedRealtime() + interval,
+                        pendingIntent
+                    )
+                    Log.d(
+                        "PROCHAINE ALARME DANS", (interval / 1000).toString() +
+                                " secondes"
+                    )
+                }
+            }
         }
-        return Service.START_STICKY
+        return START_STICKY
     }
 }
