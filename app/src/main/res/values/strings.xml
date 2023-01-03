@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">mobiles_projet</string>
+    <string name="nb_mots">Nombre de mots</string>
+    <string name="freq">Fréquence (par jour)</string>
+    <string name="save">Sauvegarder</string>
+    <string name="params">Paramètres</string>
+    <string name="lundi">Lundi</string>
+    <string name="mardi">Mardi</string>
+    <string name="mercredi">Mercredi</string>
+    <string name="jeudi">Jeudi</string>
+    <string name="vendredi">Vendredi</string>
+    <string name="samedi">Samedi</string>
+    <string name="dimanche">Dimanche</string>
 </resources>
