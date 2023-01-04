@@ -2,58 +2,46 @@ package fr.uparis.zhou.mobiles_projet
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
-import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
 import fr.uparis.zhou.mobiles_projet.databinding.ItemLayoutBinding
 
+
 class MyRecAdapter(private var listMots: MutableList<Mot>) : RecyclerView.Adapter<MyRecAdapter.VH>() {
-    private var selectedMot = -1
-    private var size = 0
 
-    fun changePrefixe(s: Int){
-        size = s
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val binding = ItemLayoutBinding
-            .inflate(
-                LayoutInflater
-                    .from(parent.context), parent, false
-            )
-        return VH(binding)
+        return VH(ItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
-
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: VH, position: Int) {
-        holder
         if(position % 2 == 0){
             holder.itemView.setBackgroundColor(Color.argb(0.1f, 0.3f, 0.3f, 0.0f))
         }else{
             holder.itemView.setBackgroundColor(Color.argb(0.1f, 0.0f, 0.3f, 0.3f))
         }
-        if(position == selectedMot){
-            holder.itemView.setBackgroundColor(Color.argb(0.5f, 0.2f, 0.2f, 0.2f))
-        }else{
-            if(position % 2 == 0){
-                holder.itemView.setBackgroundColor(Color.argb(0.1f, 0.3f, 0.3f, 0.0f))
+        holder.itemView.setOnClickListener {
+            var color = Color.TRANSPARENT
+            val background: Drawable = holder.itemView.getBackground()
+            if (background is ColorDrawable) color = background.color
+            if(color == Color.argb(105, 105, 105, 105)){
+                if(position % 2 == 0){
+                    holder.itemView.setBackgroundColor(Color.argb(0.1f, 0.3f, 0.3f, 0.0f))
+                }else{
+                    holder.itemView.setBackgroundColor(Color.argb(0.1f, 0.0f, 0.3f, 0.3f))
+                }
             }else{
-                holder.itemView.setBackgroundColor(Color.argb(0.1f, 0.0f, 0.3f, 0.3f))
+                holder.itemView.setBackgroundColor(Color.argb(105, 105, 105, 105))
             }
         }
         with(holder.binding){
-            val prefix = listMots[position].mot.substring(0, size)
-            val suffix = listMots[position].mot.substring(size)
-            val color = src.currentTextColor
-            val t = "<font color=#cc0029>$prefix</font> <font color=$color>$suffix</font>"
-
-            mot.text = HtmlCompat.fromHtml(t, HtmlCompat.FROM_HTML_MODE_LEGACY)
+            mot.text = listMots[position].mot
             src.text = listMots[position].src
             dst.text = listMots[position].dst
             url.text = listMots[position].url
@@ -68,23 +56,6 @@ class MyRecAdapter(private var listMots: MutableList<Mot>) : RecyclerView.Adapte
         this.listMots.addAll(mots)
         notifyDataSetChanged()
         Log.d("Adapter ", "setListMots $listMots")
-    }
-
-    fun selected(): Mot {
-        return listMots[selectedMot]
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    fun delete(){
-        listMots.removeAt(selectedMot)
-        selectedMot = -1
-        notifyDataSetChanged()
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    fun update(p: Mot){
-        listMots[selectedMot] = p
-        notifyDataSetChanged()
     }
 
     class VH(val binding: ItemLayoutBinding) : RecyclerView.ViewHolder( binding.root ){

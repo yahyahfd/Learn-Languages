@@ -10,6 +10,7 @@
     android:paddingTop="16dp"
     android:orientation="vertical"
     tools:context=".RechercheActivity">
+
     <ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
@@ -17,9 +18,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:ignore="MissingConstraints">
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="vertical"
             android:padding="10dp"
@@ -70,14 +72,14 @@
 
             <TextView
                 android:id="@+id/creer"
-                android:text="Choisissez un dicionnaire à sauvegarder/utiliser"
+                android:text="Choisissez un dictionnaire à sauvegarder/utiliser"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="match_parent"/>
 
             <EditText
                 android:id="@+id/ed_dico"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="match_parent"/>
 
             <Button
                 android:id="@+id/chercher"
