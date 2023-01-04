@@ -14,4 +14,5 @@
     <string name="seeagain">Nombre de jours avant de revoir un mot maitrisé</string>
     <string name="nbswipemaitrise">Nombre de swipe pour maitriser un mot</string>
     <string name="swipeappris">Nombre de swipe avant apprentissage</string>
+    <string name="suppression">suppression</string>
 </resources>
