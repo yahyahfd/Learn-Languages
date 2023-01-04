@@ -34,14 +34,13 @@ interface MyDao {
     @Update
     fun updateMots(vararg mots: Mot): Int
 
-    //On charge (complète la liste de) 10 mots les moins vu/écartés sauf si lastVu > 1 mois -> nbVu redevient 0
-    @Query("SELECT * FROM mot WHERE maitrise <= 2 OR (maitrise > 2 AND lastVu <= :date) ORDER BY RANDOM() LIMIT :nb")
-    fun loadTenWords(nb: Int, date: Long): List<Mot>
+    @Query("SELECT * FROM mot WHERE maitrise <= :maitnb " +
+            "OR (maitrise > :maitnb AND lastVu <= :date) ORDER BY RANDOM() LIMIT :nb")
+    fun loadTenWords(nb: Int, date: Long, maitnb: Int): List<Mot>
 
-
-    //On charge (complète la liste de) 10 mots les moins vu/écartés sauf si lastVu > 1 mois -> nbVu redevient 0
-    @Query("SELECT * FROM mot WHERE src = :src AND dst = :dst AND (maitrise <= 2 OR (maitrise > 2 AND lastVu <= :date)) ORDER BY RANDOM() LIMIT :nb")
-    fun loadTenWordsBis(nb: Int, date: Long, src: String, dst: String): List<Mot>
+    @Query("SELECT * FROM mot WHERE src = :src AND dst = :dst AND (maitrise <= :maitnb OR " +
+            "(maitrise > :maitnb AND lastVu <= :date)) ORDER BY RANDOM() LIMIT :nb")
+    fun loadTenWordsBis(nb: Int, date: Long, maitnb: Int, src: String, dst: String): List<Mot>
 
 
     @Query("SELECT * FROM mot WHERE mot = :id")

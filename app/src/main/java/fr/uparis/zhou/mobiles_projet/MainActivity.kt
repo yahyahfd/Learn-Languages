@@ -1,5 +1,6 @@
 package fr.uparis.zhou.mobiles_projet
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -37,6 +38,8 @@ class MainActivity : AppCompatActivity() {
             this@MainActivity.startActivity(myIntent)
         }
         //On lance le service de notifs
+        val sharedPreferences = getSharedPreferences("preferences", Context.MODE_PRIVATE)
+        sharedPreferences.edit().putBoolean("alarm", true).apply()
         val intent = Intent(this, ApprentissageService::class.java)
         startService(intent)
     }

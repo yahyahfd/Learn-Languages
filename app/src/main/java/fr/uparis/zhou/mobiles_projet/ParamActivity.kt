@@ -40,51 +40,96 @@ class ParamActivity : AppCompatActivity() {
         if (vendredi != "") binding.vendredi.setText(vendredi)
         if (samedi != "") binding.samedi.setText(samedi)
         if (dimanche != "") binding.dimanche.setText(dimanche)
+
+        val nbmaitrise = preferences.getInt("nbmaitrise", -1)
+        val nbappris = preferences.getInt("nbappris", -1)
+        val tmpsappris = preferences.getInt("tmpsappris", -1)
+
+        if (nbmaitrise != -1) binding.inputNbMaitrise.setText(nbmaitrise.toString())
+        if (nbappris != -1) binding.inputNbAppris.setText(nbappris.toString())
+        if (tmpsappris != -1) binding.inputNbTemps.setText(tmpsappris.toString())
+
     }
 
     // On sauvegarde dans préférence les valeurs reçu dans les inputs de l'activity
     fun saveParam(view: View) {
         Log.d("save", "sauvegarde")
         //On rajoute un try catch une fois qu'on aura saisi les erreurs possibles
-        try {
-            val nbMots = binding.inputNbMots.text.toString().toInt()
-            val freqMots = binding.inputNbFreq.text.toString().toInt()
-            val lundi = binding.lundi.text.toString()
-            val mardi = binding.mardi.text.toString()
-            val mercredi = binding.mercredi.text.toString()
-            val jeudi = binding.jeudi.text.toString()
-            val vendredi = binding.vendredi.text.toString()
-            val samedi = binding.samedi.text.toString()
-            val dimanche = binding.dimanche.text.toString()
-            val editor = preferences.edit()
-            editor.putInt("nbMots", nbMots)
-            editor.putInt("freqMots", freqMots)
-            if (checkFormat(lundi) && checkFormat(mardi) && checkFormat(mercredi) &&
+        val nbMots = binding.inputNbMots.text.toString()
+        val freqMots = binding.inputNbFreq.text.toString()
+        val nbmaitrise = binding.inputNbMaitrise.text.toString()
+        val nbappris = binding.inputNbAppris.text.toString()
+        val tmpsappris = binding.inputNbTemps.text.toString()
+
+        val lundi = binding.lundi.text.toString()
+        val mardi = binding.mardi.text.toString()
+        val mercredi = binding.mercredi.text.toString()
+        val jeudi = binding.jeudi.text.toString()
+        val vendredi = binding.vendredi.text.toString()
+        val samedi = binding.samedi.text.toString()
+        val dimanche = binding.dimanche.text.toString()
+        val editor = preferences.edit()
+
+        if(nbMots.isNotEmpty()){
+            editor.putInt("nbMots", nbMots.toInt())
+        }else{
+            editor.remove("nbMots")
+        }
+        if(freqMots.isNotEmpty()){
+            editor.putInt("freqMots", freqMots.toInt())
+        }else{
+            editor.remove("freqMots")
+        }
+
+        if (checkFormat(lundi) && checkFormat(mardi) && checkFormat(mercredi) &&
                 checkFormat(jeudi) && checkFormat(vendredi) && checkFormat(samedi) &&
                 checkFormat(dimanche)
-            ) {
-                editor.putString("lundi", lundi)
-                editor.putString("mardi", mardi)
-                editor.putString("mercredi", mercredi)
-                editor.putString("jeudi", jeudi)
-                editor.putString("vendredi", vendredi)
-                editor.putString("samedi", samedi)
-                editor.putString("dimanche", dimanche)
+        ) {
+
+            if(tmpsappris.isNotEmpty()){
+                editor.putInt("tmpsappris", tmpsappris.toInt())
+            }else{
+                editor.remove("tmpsappris")
+            }
+            editor.putString("lundi", lundi)
+            editor.putString("mardi", mardi)
+            editor.putString("mercredi", mercredi)
+            editor.putString("jeudi", jeudi)
+            editor.putString("vendredi", vendredi)
+            editor.putString("samedi", samedi)
+            editor.putString("dimanche", dimanche)
+
+            if(nbappris.isNotEmpty() && nbmaitrise.isNotEmpty()){
+                editor.putInt("nbappris", nbappris.toInt())
+                editor.putInt("nbmaitrise", nbmaitrise.toInt())
+                if (nbappris.toInt() > nbmaitrise.toInt()) {
+                    editor.apply()
+                    //Les paramètres sont sauvegardés dans les préférences,
+                    // on doit les load dans l'activity
+                    finish()
+                } else {
+                    Toast.makeText(
+                            this,
+                            "Le nombre de swipe pour l'apprentissage doit-être " +
+                                    "supérieur à celui pour la maitrise.",
+                            Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }else{
+                editor.remove("nbappris")
+                editor.remove("nbmaitrise")
                 editor.apply()
                 //Les paramètres sont sauvegardés dans les préférences,
                 // on doit les load dans l'activity
                 finish()
-            } else {
-                Toast.makeText(
+            }
+        } else {
+            Toast.makeText(
                     this,
                     " Les champs doivent être \"src-dst\" ou vides" +
                             " (pour charger toutes les langues)",
                     Toast.LENGTH_SHORT
-                ).show()
-            }
-
-        } catch (e: NumberFormatException) {
-            Log.d("les champs","sont vides")
+            ).show()
         }
     }
 
