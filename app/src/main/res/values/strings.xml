@@ -11,4 +11,5 @@
     <string name="vendredi">Vendredi</string>
     <string name="samedi">Samedi</string>
     <string name="dimanche">Dimanche</string>
+    <string name="suppression">suppression</string>
 </resources>

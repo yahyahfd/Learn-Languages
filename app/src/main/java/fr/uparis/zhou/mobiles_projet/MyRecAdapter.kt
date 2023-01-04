@@ -15,6 +15,8 @@ import fr.uparis.zhou.mobiles_projet.databinding.ItemLayoutBinding
 
 class MyRecAdapter(private var listMots: MutableList<Mot>) : RecyclerView.Adapter<MyRecAdapter.VH>() {
 
+    val selected = mutableListOf<Mot>()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         return VH(ItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
@@ -27,16 +29,20 @@ class MyRecAdapter(private var listMots: MutableList<Mot>) : RecyclerView.Adapte
             holder.itemView.setBackgroundColor(Color.argb(0.1f, 0.0f, 0.3f, 0.3f))
         }
         holder.itemView.setOnClickListener {
+
+            Log.d("POSITION ABSOLUE ", holder.absoluteAdapterPosition.toString())
             var color = Color.TRANSPARENT
             val background: Drawable = holder.itemView.getBackground()
             if (background is ColorDrawable) color = background.color
             if(color == Color.argb(105, 105, 105, 105)){
+                selected.remove(listMots[holder.absoluteAdapterPosition])
                 if(position % 2 == 0){
                     holder.itemView.setBackgroundColor(Color.argb(0.1f, 0.3f, 0.3f, 0.0f))
                 }else{
                     holder.itemView.setBackgroundColor(Color.argb(0.1f, 0.0f, 0.3f, 0.3f))
                 }
             }else{
+                selected.add(listMots[holder.absoluteAdapterPosition])
                 holder.itemView.setBackgroundColor(Color.argb(105, 105, 105, 105))
             }
         }
