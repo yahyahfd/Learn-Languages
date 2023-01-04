@@ -154,6 +154,39 @@
                 android:layout_weight="4" />
         </LinearLayout>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/swipeappris" />
+
+        <EditText
+            android:id="@+id/input_nb_appris"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nbswipemaitrise" />
+
+        <EditText
+            android:id="@+id/input_nb_maitrise"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/seeagain" />
+
+        <EditText
+            android:id="@+id/input_nb_temps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number" />
+
         <Button
             android:id="@+id/save_btn"
             android:layout_width="wrap_content"
