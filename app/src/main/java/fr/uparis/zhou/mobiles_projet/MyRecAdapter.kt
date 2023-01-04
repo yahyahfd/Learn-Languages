@@ -15,17 +15,9 @@ import fr.uparis.zhou.mobiles_projet.databinding.ItemLayoutBinding
 
 class MyRecAdapter(private var listMots: MutableList<Mot>) : RecyclerView.Adapter<MyRecAdapter.VH>() {
 
-
-    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val binding = ItemLayoutBinding
-            .inflate(
-                LayoutInflater
-                    .from(parent.context), parent, false
-            )
-        return VH(binding)
+        return VH(ItemLayoutBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
-
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: VH, position: Int) {
