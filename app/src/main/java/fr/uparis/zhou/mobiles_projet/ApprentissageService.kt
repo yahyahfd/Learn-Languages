@@ -161,6 +161,14 @@ class ApprentissageService : Service() {
                     myDao.updateMots(mot)
                     Log.d("mot ${mot.mot}", " devient FALSE")
                 }
+
+                val nbappris = sharedPreferences.getInt("nbappris",10)//Par défaut à 10 swipe, le mot est supprimé
+                for(i in tmpAllMots){
+                    if(i.maitrise!! >= nbappris){
+                        myDao.deleteMots(i)
+                    }
+                }
+
                 nb = intent?.getIntExtra(
                         "nb", sharedPreferences.getInt(
                         "nbMots", 10
@@ -299,7 +307,9 @@ class ApprentissageService : Service() {
                             action = "SEARCH"
                             putExtra("url", m.url)
                             Log.d("url envoyée", m.url)
-                            putExtra("motID", m.mot)
+                            if(m.maitrise!! < nbappris){
+                                putExtra("motID", m.mot)
+                            }
                             putExtra("notifIDelete", notificationID)
                             Log.d("id envoyé", "$notificationID")
                         }
