@@ -108,7 +108,14 @@ class AfficherBddActivity : AppCompatActivity() {
                         .show()
                 }
             }
-
+            R.id.action_selection_all->{
+                for(mot in adapter.listMots){
+                    if(!adapter.selected.contains(mot)){
+                        adapter.selected.add(mot)
+                    }
+                }
+                adapter.notifyDataSetChanged()
+            }
         }
         return super.onOptionsItemSelected(item)
     }

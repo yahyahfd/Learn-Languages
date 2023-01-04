@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import fr.uparis.zhou.mobiles_projet.databinding.ItemLayoutBinding
 
 
-class MyRecAdapter(private var listMots: MutableList<Mot>) : RecyclerView.Adapter<MyRecAdapter.VH>() {
+class MyRecAdapter(var listMots: MutableList<Mot>) : RecyclerView.Adapter<MyRecAdapter.VH>() {
 
     val selected = mutableListOf<Mot>()
 
@@ -28,21 +28,25 @@ class MyRecAdapter(private var listMots: MutableList<Mot>) : RecyclerView.Adapte
         }else{
             holder.itemView.setBackgroundColor(Color.argb(0.1f, 0.0f, 0.3f, 0.3f))
         }
+        if(selected.contains(listMots[position])){
+            holder.itemView.setBackgroundColor(Color.argb(105, 105, 105, 105))
+        }
         holder.itemView.setOnClickListener {
 
-            Log.d("POSITION ABSOLUE ", holder.absoluteAdapterPosition.toString())
             var color = Color.TRANSPARENT
             val background: Drawable = holder.itemView.getBackground()
             if (background is ColorDrawable) color = background.color
             if(color == Color.argb(105, 105, 105, 105)){
-                selected.remove(listMots[holder.absoluteAdapterPosition])
+                if(selected.contains(listMots[holder.absoluteAdapterPosition]))
+                    selected.remove(listMots[holder.absoluteAdapterPosition])
                 if(position % 2 == 0){
                     holder.itemView.setBackgroundColor(Color.argb(0.1f, 0.3f, 0.3f, 0.0f))
                 }else{
                     holder.itemView.setBackgroundColor(Color.argb(0.1f, 0.0f, 0.3f, 0.3f))
                 }
             }else{
-                selected.add(listMots[holder.absoluteAdapterPosition])
+                if(!selected.contains(listMots[holder.absoluteAdapterPosition]))
+                    selected.add(listMots[holder.absoluteAdapterPosition])
                 holder.itemView.setBackgroundColor(Color.argb(105, 105, 105, 105))
             }
         }
