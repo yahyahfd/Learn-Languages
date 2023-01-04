@@ -21,5 +21,19 @@
         android:layout_marginBottom="5dp"
         android:layout_marginStart="6dp"
         android:hint="mot" />
+    <EditText
+        android:id="@+id/src"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginStart="6dp"
+        android:hint="source" />
+    <EditText
+        android:id="@+id/dst"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginStart="6dp"
+        android:hint="destinataire" />
 
 </LinearLayout>

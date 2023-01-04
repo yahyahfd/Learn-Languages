@@ -22,6 +22,12 @@ interface MyDao {
     @Query("SELECT * FROM Mot WHERE mot LIKE (:nom) || '%'")
     fun loadPartialName(nom: String): LiveData<List<Mot>>
 
+    @Query("SELECT * FROM Mot WHERE src LIKE (:src) || '%'")
+    fun loadPartialSrc(src: String): LiveData<List<Mot>>
+
+    @Query("SELECT * FROM Mot WHERE mot LIKE (:dst) || '%'")
+    fun loadPartialDst(dst: String): LiveData<List<Mot>>
+
     @Delete
     fun deleteMots(vararg mots: Mot): Int
 

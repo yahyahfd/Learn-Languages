@@ -1,22 +1,13 @@
 package fr.uparis.zhou.mobiles_projet
 
-import android.app.AlertDialog
-import android.content.Intent
-import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.widget.EditText
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import fr.uparis.zhou.mobiles_projet.databinding.ActivityAfficherBddBinding
-import fr.uparis.zhou.mobiles_projet.databinding.ActivityAjoutMotBinding
 
 class AfficherBddActivity : AppCompatActivity() {
 
@@ -42,8 +33,30 @@ class AfficherBddActivity : AppCompatActivity() {
         val recherche = binding.mot
         recherche.addTextChangedListener (object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
-                adapter.changePrefixe(s.length)
                 model.loadPartialWorld(s.toString()).observe(this@AfficherBddActivity) {
+                    Log.d("mots : ", "nouvelle liste de mots $it")
+                    adapter.setMots(it)
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        val rechercheSrc = binding.src
+        rechercheSrc.addTextChangedListener (object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {
+                model.loadPartialSrc(s.toString()).observe(this@AfficherBddActivity) {
+                    Log.d("mots : ", "nouvelle liste de mots $it")
+                    adapter.setMots(it)
+                }
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        val rechercheDst = binding.dst
+        rechercheDst.addTextChangedListener (object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {
+                model.loadPartialDst(s.toString()).observe(this@AfficherBddActivity) {
                     Log.d("mots : ", "nouvelle liste de mots $it")
                     adapter.setMots(it)
                 }

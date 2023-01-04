@@ -4,7 +4,6 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import java.util.concurrent.TimeUnit
 
 class AjoutViewModel(application: Application) : AndroidViewModel(application)  {
     private val dao = (application as DicoApplication).database.myDao()
@@ -20,9 +19,11 @@ class AjoutViewModel(application: Application) : AndroidViewModel(application)  
 
     fun loadAllWords() = dao.loadAll()
     fun loadPartialWorld(prefixe: String) = dao.loadPartialName(prefixe)
+    fun loadPartialSrc(prefixe: String) = dao.loadPartialSrc(prefixe)
+    fun loadPartialDst(prefixe: String) = dao.loadPartialDst(prefixe)
 
     private val deleteResult : MutableLiveData<Int> = MutableLiveData()
-    fun deleteWorl(p: Mot) {
+    fun deleteWorld(p: Mot) {
         Thread{
             val l = dao.deleteMots(p)
             deleteResult.postValue( l )
